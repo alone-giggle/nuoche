@@ -1,0 +1,52 @@
+{extend name="layout/tpl" /}
+
+{block name="title"}角色列表{/block}
+
+{block name="content"}
+<form class="layui-form" action="" style="margin-top: 15px;">
+    <div class="layui-form-item">
+        <div class="layui-input-block">
+            {foreach $groupList as $group}
+            <input type="checkbox" name="group[]" title="{$group.title}" value="{$group.id}" {if condition="in_array($group.id, $memberGroup)"}checked=""{/if}>
+            {/foreach}
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label"></label>
+        <div class="layui-input-inline">
+            <input type="hidden" name="uid" value="{$uid}">
+            <button class="layui-btn" lay-submit="" lay-filter="submit">立即提交</button>
+            <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+        </div>
+    </div>
+</form>
+{/block}
+
+{block name="footerjs"}
+<script>
+    layui.use('table', function(){
+        var form = layui.form;
+        form.on('submit(submit)',function(data){
+            var index;
+            $.ajax({
+                type:       'post',
+                data:       data.field,
+                dataType:   'json',
+                beforeSend: function () {
+                    index = layer.load(0, {shade: false});
+                },
+                success:    function (msg) {
+                    layer.close(index);
+                    if(msg.errCode === "0") {
+                        parent.location.reload();
+                    } else {
+                        layer.msg(msg.msg);
+                    }
+                }
+            });
+            return false;   // 阻止表单跳转
+        });
+    });
+</script>
+{/block}

@@ -1,0 +1,96 @@
+{extend name="layout/tpl" /}
+
+{block name="title"}角色列表{/block}
+{block name="css"}
+{__block__}
+<style type="text/css">
+    .use{
+        color: #1d943b;
+    }
+    .nouse{
+        color: #942a25;
+    }
+</style>
+{/block}
+{block name="content"}
+<button class="layui-btn layui-btn-lg layui-parent-btn" style="margin:15px 0 0 5px;">角色添加</button>
+<fieldset class="layui-elem-field layui-field-title" style="margin-top: 20px;">
+    <legend>角色列表</legend>
+</fieldset>
+<div class="layui-form">
+    <table class="layui-hide" id="grouplist" lay-filter="demo"></table>
+    <script type="text/html" id="bar">
+        <a class="layui-btn layui-btn-primary layui-btn-xs" lay-event="edit">编辑</a>
+        <a class="layui-btn layui-btn-xs" lay-event="grant">授权</a>
+        <!--<a class="layui-btn layui-btn-warm layui-btn-xs" lay-event="disable">禁用</a>-->
+    </script>
+    <script type="text/html" id="tpl_moban">
+        {{#  if(d.status == '1'){ }}
+        <span class="use">使用中</span>
+        {{#  } else { }}
+        <span class="nouse">禁用</span>
+        {{#  } }}
+    </script>
+</div>
+
+{/block}
+
+{block name="footerjs"}
+<script>
+    layui.use(['laypage','table'], function () {
+        var laypage = layui.laypage //分页
+            ,table = layui.table //表格
+        ;
+        //执行一个 table 实例
+        table.render({
+            elem: '#grouplist'
+            ,url: "{url('index')}" //数据接口
+            ,page: false //开启分页
+            ,cols: [[ //表头
+                {field: 'id', title: '序号', width:80,fixed: 'left'}
+                ,{field: 'title', title: '名称'}
+                ,{field: 'status', title: '状态', templet: '#tpl_moban'}
+                ,{fixed: 'right',title:'操作', align:'center', toolbar: '#bar'}
+            ]]
+        });
+        //监听工具条
+        table.on('tool(demo)', function(obj){
+            var data = obj.data //获得当前行数据
+                ,layEvent = obj.event; //获得 lay-event 对应的值
+            if(layEvent === 'grant'){
+                layer.open({
+                    type: 2,
+                    title: '授权',
+                    shadeClose: true,
+                    shade: 0.8,
+                    maxmin: true, //开启最大化最小化按钮
+                    area: ['540px','100%'],
+                    content: "{:url('grantAuth')}?gid="+data.id //iframe的url
+                });
+            }
+            if(layEvent === 'edit'){
+                layer.open({
+                    type: 2,
+                    title: '编辑',
+                    shadeClose: true,
+                    shade: 0.8,
+                    maxmin: false, //开启最大化最小化按钮
+                    area: ['420px','220px'],
+                    content: "{:url('edit')}?gid="+data.id //iframe的url
+                });
+            }
+        });
+        $(".layui-parent-btn").click(function () {
+            layer.open({
+                type: 2,
+                title: '后台菜单添加',
+                shadeClose: true,
+                shade: 0.8,
+                maxmin: false,
+                area: ['420px','220px'],
+                content: "{:url('add')}" //iframe的url
+            });
+        });
+    })
+</script>
+{/block}

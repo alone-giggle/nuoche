@@ -1,0 +1,62 @@
+{extend name="layout/tpl" /}
+
+{block name="title"}角色添加{/block}
+
+{block name="content"}
+<form class="layui-form" action="" style="margin-top: 20px;">
+    <div class="layui-form-item">
+        <label class="layui-form-label">名称:</label>
+        <div class="layui-input-inline">
+            <input type="text" name="title" lay-verify="title" autocomplete="off" placeholder="请输入角色名称" class="layui-input" value="">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">状态:</label>
+        <div class="layui-input-inline">
+            <input type="radio" name="status" value="1" title="启用" checked="">
+            <input type="radio" name="status" value="0" title="禁用">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-input-inline">
+            <button class="layui-btn" lay-submit="" lay-filter="submit">立即提交</button>
+        </div>
+    </div>
+</form>
+{/block}
+
+{block name="footerjs"}
+<script>
+    layui.use('table', function(){
+        var form = layui.form;
+        form.verify({
+            title: function (value) {
+                if(value.length < 1) {
+                    return '角色名称必填';
+                }
+            }
+        });
+        form.on('submit(submit)',function(data){
+            var index;
+            var pindex = parent.layer.getFrameIndex(window.name);
+            $.ajax({
+                type:       'post',
+                data:       data.field,
+                dataType:   'json',
+                beforeSend: function () {
+                    index = layer.load(0, {shade: false});
+                },
+                success:    function (msg) {
+//                    layer.close(index);
+                    if(msg.errCode === "0") {
+                        parent.layer.close(pindex);
+                        parent.location.reload();
+                    } else {
+                        layer.msg(msg.msg);
+                    }
+                }
+            });
+        });
+    });
+</script>
+{/block}

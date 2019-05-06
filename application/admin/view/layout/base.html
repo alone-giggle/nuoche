@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>后台管理系统</title>
+    {block name="css"}
+    <link rel="stylesheet" href="/layui/css/layui.css">
+    <link rel="stylesheet" href="/backend/css/style.css">
+    <link rel="stylesheet" href="/backend/css/toast.style.min.css">
+    {/block}
+
+    {block name="headerjs"}
+    <script type="text/javascript" src="/backend/js/jquery-1.11.3.min.js"></script>
+    <script type="text/javascript" src="/backend/js/toast.script.js"></script>
+    <script type="text/javascript" src="/layui/layui.js"></script>
+    <script type="text/javascript" src="/backend/js/notification.js"></script>
+    {/block}
+</head>
+<body>
+
+<!--
+顶栏->侧边栏
+<li top-bar top-id="1" class="layui-nav-item layui-this"><a href="javascript:;">控制台</a></li>
+    顶栏要带top-bar属性,top-id是顶栏的id,唯一.
+<ul left-bar left-id="1" class="layui-nav layui-nav-tree" lay-filter="left-nav" style="border-radius: 0;">
+    侧边栏要带left-bar属性,left-id是唯一的,值要和对应的顶栏的top-id一样.
+
+侧边栏->tab
+<a href="javascript:;" data-url="https://www.so.com/" data-id="4" tab-item>
+    链接到tab标签,带 tab-item 属性,要有data-url和data-id. 必填.
+    data-url是URL,data-id是唯一.
+-->
+{block name="centent"}
+<!-- 布局容器 -->
+<div class="layui-layout layui-layout-admin">
+    <!-- 头部 -->
+    <div class="layui-header">
+        <div class="layui-logo">后台管理</div>
+        <!-- 头部区域（可配合layui已有的水平导航） -->
+        <ul class="layui-nav layui-layout-left">
+            {foreach $rule_tree as $key => $tree}
+            <li top-bar top-id="{$key}" class="layui-nav-item {if condition='$key==0'}layui-this{/if}"><a href="javascript:;">{$tree.title}</a></li>
+            {/foreach}
+        </ul>
+
+        <ul class="layui-nav layui-layout-right">
+            <li class="layui-nav-item">
+                <a href="javascript:;">
+                    <img src="http://t.cn/RCzsdCq" class="layui-nav-img">
+                    {$userInfo.username}
+                </a>
+                <dl class="layui-nav-child">
+                    <dd><a href="javascript:;" class="editpassword">修改密码</a></dd>
+                </dl>
+            </li>
+            <li class="layui-nav-item"><a href="javascript:;" class="loginout">退了</a></li>
+        </ul>
+    </div>
+
+    <!-- 侧边栏 -->
+    <div class="layui-side layui-bg-black">
+        <div class="layui-side-scroll">
+        {foreach $rule_tree as $key => $tree}
+            <ul left-bar left-id="{$key}" class="layui-nav layui-nav-tree" lay-filter="left-nav" style="border-radius: 0;{if condition='$key!=0'}display:none;{/if}">
+            {if condition="isset($tree.children)"}
+                {foreach $tree.children as $children}
+                    <li class="layui-nav-item">
+                        {if condition='!empty($children.name)'}
+                        <a href="javascript:;"  data-url="{$children.name|url}" data-id="{$children.id}" tab-item>{$children.title}</a>
+                        {else}
+                        <a href="javascript:;">{$children.title}</a>
+                        {/if}
+                        {if condition="isset($children.children)"}
+                            {php}$childLen = count($children['children']);$flag=0;{/php}
+                            {foreach $children.children as $child}
+                                {if condition="$child.status==0"}
+                                    {php}$flag++;{/php}
+                                {/if}
+                            {/foreach}
+                            {if condition="$childLen != $flag"}
+                            <dl class="layui-nav-child">
+                                {foreach $children.children as $child}
+                                {if condition="$child.status"}
+                                <dd>
+                                    <a href="javascript:;" data-url="{$child.name|url}" data-id="{$child.id}" tab-item>{$child.title}</a>
+                                </dd>
+                                {/if}
+                                {/foreach}
+                            </dl>
+                            {/if}
+                        {/if}
+                    </li>
+                {/foreach}
+            {/if}
+            </ul>
+        {/foreach}
+
+        </div>
+    </div>
+
+    <!-- 主体 -->
+    <div class="layui-body">
+        <!-- 顶部切换卡 -->
+        <div class="layui-tab layui-tab-brief" lay-filter="top-tab" lay-allowClose="true" style="margin: 0;">
+            <ul class="layui-tab-title"></ul>
+            <div class="layui-tab-content" style="padding: 0;"></div>
+        </div>
+    </div>
+
+    <!-- 底部 -->
+    <div class="layui-footer" style="text-align: center; line-height: 44px;">
+        Copyright © 2018 <a href="http://thinkadmin.91-t.com" target="_blank">thinkadmin</a> Powered by 挪车
+    </div>
+</div>
+{/block}
+{block name="footerjs"}
+<script type="text/javascript">
+
+    // $.Toast("标题", "你收到了一条消息", "success", {
+    //     stack: true,
+    //     has_icon:true,
+    //     has_close_btn:true,
+    //     fullscreen:false,
+    //     timeout:2700,
+    //     sticky:false,
+    //     has_progress:true,
+    //     rtl:false,
+    // });
+
+    // iframe切换动画
+    function ani(id){
+        $("[iframe-id="+id+"]").hide();
+        $("[iframe-id="+id+"]").fadeIn(127);
+    }
+
+    layui.use(['element','table'], function() {
+        var element    = layui.element;
+        var layer      = layui.layer;
+
+        var tabfilter  = 'top-tab';
+        var tab        = $('.layui-tab[lay-filter='+tabfilter+']').eq(0);
+        var tabcontent = tab.children('.layui-tab-content').eq(0);
+        var tabtitle   = tab.children('.layui-tab-title').eq(0);
+
+        /**
+         * iframe自适应
+         */
+        $(window).resize(function() {
+            //设置顶部切换卡容器度
+            tabcontent.height($(this).height() - 60 - 41 - 44); //头部高度 顶部切换卡高度 底部高度
+            //设置顶部切换卡容器内每个iframe高度
+            tabcontent.find('iframe').each(function () {
+                $(this).height(tabcontent.height());
+            });
+        }).resize();
+
+        // 监听Tab切换，以改变地址hash值
+        element.on('tab('+tabfilter+')', function(){
+            try {
+                var id = this.getAttribute('lay-id');
+            } catch (e) {
+                var id = null;
+            }
+            if(id!=null){
+                location.hash = tabfilter+'='+ id;
+                ani(id);
+            }
+        });
+
+        // 点击左侧链接的时候
+        $('[tab-item]').bind('click',function(){
+            var id = $(this).attr('data-id');
+            var title = $(this).text();
+            var url = $(this).attr('data-url');
+
+            var iframes = $("[lay-id="+id+"]").length;
+            if(iframes==0){
+                // 不存在的情况
+                var iframe = '<iframe';
+                iframe += ' src="'+url +'" iframe-id="'+id+'"';
+                iframe += ' style="width: 100%; height: '+tabcontent.height()+'px; border: 0px;"';
+                iframe += '></iframe>';
+                //顶部切换卡新增一个卡片
+                element.tabAdd(tabfilter, {'title': title,'content': iframe,'id':id});
+                ani(id);
+            }
+            // 添加记录
+            location.hash = tabfilter+'='+ id;
+            // 改变tab
+            element.tabChange(tabfilter,id);
+        });
+
+        // 顶部导航选择时
+        $('[top-bar]').bind('click',function(){
+            var id = $(this).attr('top-id');
+            var lefts = $("[left-bar][left-id='"+id+"']").length;
+            if(lefts!=0){
+                // top-bar有对应的left-bar的情况下
+                $("[left-bar]").hide();
+                $("[left-bar][left-id='"+id+"']").fadeIn(500);
+            }
+        });
+
+        /**
+         * 初始化点击侧边栏导航
+         */
+        var layid = location.hash.replace(/^#top-tab=/, '');
+        // layui-this
+        if(layid){
+            $('.layui-side-scroll').find('[data-id='+layid+']').eq(0).click();    // 根据传入的ID跳转
+        }else{
+            $('.layui-side-scroll').find('[data-url][data-id]').eq(0).click();    // 点击第一个
+        }
+        $(".loginout").click(function () {
+            $.get('{:url("NotAuth/loginout")}', function (data) {
+                if(data.errCode == "0") {
+                    window.location.reload();
+                }
+            })
+        });
+        $(".editpassword").click(function () {
+            layer.open({
+                type: 2,
+                title: '修改密码',
+                shadeClose: true,
+                shade: 0.8,
+                area: ['420px', '270px'],
+                content: "{:url('editPassword')}?uid="+{$userInfo.id}//iframe的url
+            });
+        });
+    });
+</script>
+{/block}
+
+</body>
+</html>

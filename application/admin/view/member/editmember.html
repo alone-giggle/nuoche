@@ -1,0 +1,92 @@
+{extend name="layout/tpl" /}
+
+{block name="title"}管理员添加{/block}
+
+{block name="content"}
+<form class="layui-form" action="" style="margin-top: 15px;">
+    <div class="layui-form-item">
+        <label class="layui-form-label">姓名:</label>
+        <div class="layui-input-inline">
+            <input type="text" name="username" lay-verify="username" autocomplete="off" placeholder="请输入姓名" value="{$memberInfo.username}" class="layui-input">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">备注:</label>
+        <div class="layui-input-inline">
+            <input type="text" name="remark" lay-verify="remark" autocomplete="off" placeholder="请输入备注" value="{$memberInfo.remark}" class="layui-input">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">状态:</label>
+        <div class="layui-input-inline">
+            {if condition="$memberInfo.status"}
+            <input type="radio" name="status" value="1" title="使用" checked="">
+            <input type="radio" name="status" value="0" title="禁用">
+            {else}
+            <input type="radio" name="status" value="1" title="使用">
+            <input type="radio" name="status" value="0" title="禁用" checked="">
+            {/if}
+
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label"></label>
+        <div class="layui-input-inline">
+            <button class="layui-btn" lay-submit="" lay-filter="submit">立即提交</button>
+            <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+        </div>
+    </div>
+</form>
+{/block}
+
+{block name="footerjs"}
+<script>
+    layui.use('table', function(){
+        var form = layui.form;
+        form.verify({
+            username: function (value) {
+                if(value.length < 1) {
+                    return '姓名必填';
+                }
+            },
+            password: function (value) {
+                if(value.length < 1) {
+                    return '密码必填';
+                }
+                if(value.length < 6) {
+                    return '密码长度不能小于6位';
+                }
+            },
+            repassword: function (value) {
+                var pwd = $('input[name=password]').val();
+                if (value != pwd) {
+                    return '两次密码不一致';
+                }
+            }
+        });
+        form.on('submit(submit)',function(data){
+            var index;
+            $.ajax({
+                type:       'post',
+                data:       data.field,
+                dataType:   'json',
+                beforeSend: function () {
+                    index = layer.load(0, {shade: false});
+                },
+                success:    function (msg) {
+                    layer.close(index);
+                    if(msg.errCode === "0") {
+                        parent.location.reload();
+                    } else {
+                        layer.msg(msg.msg);
+                    }
+                }
+            });
+            return false;   // 阻止表单跳转
+        });
+    });
+</script>
+{/block}

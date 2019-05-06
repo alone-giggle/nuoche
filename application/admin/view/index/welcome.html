@@ -1,0 +1,32 @@
+{extend name="layout/tpl" /}
+
+{block name="title"}系统信息{/block}
+
+{block name="content"}
+<fieldset class="layui-elem-field layui-field-title" style="margin-top: 20px;">
+    <legend>系统信息</legend>
+</fieldset>
+<div class="layui-form">
+    <table class="layui-table">
+        <colgroup>
+            <col width="150">
+            <col width="150">
+            <col>
+        </colgroup>
+        <thead>
+        <tr>
+            <th>参数</th>
+            <th>值</th>
+        </tr>
+        </thead>
+        <tbody>
+        {foreach $sys_info as $key => $val}
+        <tr>
+            <td>{$key}</td>
+            <td>{$val}</td>
+        </tr>
+        {/foreach}
+        </tbody>
+    </table>
+</div>
+{/block}

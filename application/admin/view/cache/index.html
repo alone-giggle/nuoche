@@ -1,0 +1,87 @@
+{extend name="layout/tpl" /}
+
+{block name="title"}缓存信息{/block}
+
+{block name="content"}
+<fieldset class="layui-elem-field layui-field-title" style="margin-top: 20px;">
+    <legend>缓存信息</legend>
+</fieldset>
+<div class="layui-form">
+    <table class="layui-table" lay-skin="nob">
+        <tr>
+            <td width="300">
+                <div class="layui-form-item">
+                    <div class="layui-input-block">
+                        <input type="checkbox" name="field" value="field" lay-skin="primary" title="数据库字段缓存" checked>
+                    </div>
+                </div>
+            </td>
+            <td>修改过数据库结构之后更新</td>
+        </tr>
+
+        <tr>
+            <td width="300">
+                <div class="layui-form-item">
+                    <div class="layui-input-block">
+                        <input type="checkbox" name="tpl" value="tpl" lay-skin="primary" title="模板编译缓存" checked>
+                    </div>
+                </div>
+            </td>
+            <td>修改过模板文件后更新</td>
+        </tr>
+
+
+        <tr>
+            <td width="300">
+                <div class="layui-form-item">
+                    <div class="layui-input-block">
+                        <input type="checkbox" name="data" value="data" lay-skin="primary" title="站点数据缓存" checked>
+                    </div>
+                </div>
+            </td>
+            <td>网站迁移、恢复、修改配置文件后网站数据异常时更新</td>
+        </tr>
+
+
+        <tr>
+            <td width="300">
+                <div class="layui-form-item">
+                    <div class="layui-input-block">
+                        <input type="checkbox" name="logs" value="logs" lay-skin="primary" title="网站日志文件" checked>
+                    </div>
+                </div>
+            </td>
+            <td>网站迁移、恢复、清理项目日志文件释放服务器空间</td>
+        </tr>
+
+        <tr>
+            <td>
+                <div class="layui-form-item">
+                    <div class="layui-input-block">
+                        <button class="layui-btn layui-btn-warm" lay-submit lay-filter="formDemo">清理缓存</button>
+                    </div>
+                </div>
+            </td>
+            <td></td>
+        </tr>
+
+    </table>
+</div>
+
+<script>
+    //Demo
+    layui.use('form', function(){
+        var form = layui.form;
+
+        //监听提交
+        form.on('submit(formDemo)', function(data){
+
+
+
+            return false;
+        });
+    });
+</script>
+
+
+{/block}
